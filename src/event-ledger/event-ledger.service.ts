@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { EventEntityType, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { EventLedgerRepository } from './event-ledger.repository';
+import { AnchoringQueueService } from '../jobs/services/anchoring-queue.service';
+import { Optional, Inject, forwardRef } from '@nestjs/common';
 
 export interface AppendEventParams {
   aggregateType: EventEntityType | string;
@@ -28,6 +30,9 @@ export class EventLedgerService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly repository: EventLedgerRepository,
+    @Optional()
+    @Inject(forwardRef(() => AnchoringQueueService))
+    private readonly anchoringQueueService?: AnchoringQueueService,
   ) {}
 
   /**
@@ -117,21 +122,8 @@ export class EventLedgerService {
 
   /**
    * Queues an anchoring job for later blockchain anchoring.
-   * This is a best-effort operation — failure is logged but does not
-   * prevent the event from being written.
    */
-  private async queueAnchoringJob(event: {
-    id: string;
-    entityType: string;
-    entityId: string;
-    eventType: string;
-    sequenceNumber: number;
-  }): Promise<void> {
-    this.logger.log(
-      `Queuing anchoring job for event ${event.id} (aggregate: ${event.entityType}/${event.entityId}, seq: ${event.sequenceNumber})`,
-    );
-    // Anchoring job implementation is deferred to issue #P3-27.
-    // For now we log the intent. When the anchoring processor is ready,
-    // this method will dispatch to the appropriate queue.
+  private async queueAnchoringJob(event: any): Promise<void> {
+    await this.anchoringQueueService?.enqueueAnchoringJob(event);
   }
 }

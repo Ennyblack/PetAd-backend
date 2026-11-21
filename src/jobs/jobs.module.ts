@@ -9,14 +9,19 @@ import { DataExportProcessor } from './processors/data-export.processor';
 import { DataExportWorker } from './workers/data-export.worker';
 import { DataExportCleanupProcessor } from './processors/data-export-cleanup.processor';
 import { DataExportModule } from '../users/data-export/data-export.module';
+import { AnchoringQueueService } from './services/anchoring-queue.service';
+import { AnchoringProcessor } from './processors/anchoring.processor';
+import { AnchoringWorker } from './workers/anchoring.worker';
+import { PrismaModule } from '../prisma/prisma.module';
 
 @Global()
 @Module({
   imports: [
-    ConfigModule, // Provides ConfigService to our queue/worker services
+    ConfigModule,
     EmailModule,
     LoggingModule,
     DataExportModule,
+    PrismaModule,
   ],
   providers: [
     NotificationProcessor,
@@ -25,11 +30,16 @@ import { DataExportModule } from '../users/data-export/data-export.module';
     DataExportProcessor,
     DataExportWorker,
     DataExportCleanupProcessor,
+    AnchoringQueueService,
+    AnchoringProcessor,
+    AnchoringWorker,
   ],
   exports: [
     NotificationQueueService,
     DataExportProcessor,
     DataExportCleanupProcessor,
+    AnchoringQueueService,
+    AnchoringProcessor,
   ],
 })
 export class JobsModule {}

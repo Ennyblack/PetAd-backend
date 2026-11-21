@@ -7,6 +7,9 @@ export const DATA_EXPORT_QUEUE_NAME = 'data_export';
 export const PROCESS_DATA_EXPORT_JOB_NAME = 'process_data_export';
 export const CLEANUP_DATA_EXPORT_JOB_NAME = 'cleanup_data_export';
 
+export const ANCHORING_QUEUE_NAME = 'anchoring';
+export const ANCHOR_EVENTS_JOB_NAME = 'anchor_events';
+
 export function getRedisConnection(configService: ConfigService) {
   const redisUrl = configService.get<string>('REDIS_URL');
   if (!redisUrl) {
